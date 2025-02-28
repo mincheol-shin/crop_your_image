@@ -151,6 +151,8 @@ class Crop extends StatelessWidget {
   /// The rendering quality of the image
   final FilterQuality filterQuality;
 
+  final bool flipVertical;
+
   Crop({
     super.key,
     required this.image,
@@ -178,6 +180,7 @@ class Crop extends StatelessWidget {
     this.scrollZoomSensitivity = 0.05,
     this.overlayBuilder,
     this.filterQuality = FilterQuality.medium,
+    this.flipVertical = false,
   })  : this.imageParser = imageParser ?? defaultImageParser,
         this.formatDetector = formatDetector ?? defaultFormatDetector;
 
@@ -217,6 +220,7 @@ class Crop extends StatelessWidget {
             imageParser: imageParser,
             overlayBuilder: overlayBuilder,
             filterQuality: filterQuality,
+            flipVertical: flipVertical,
           ),
         );
       },
@@ -250,6 +254,7 @@ class _CropEditor extends StatefulWidget {
   final double scrollZoomSensitivity;
   final OverlayBuilder? overlayBuilder;
   final FilterQuality filterQuality;
+  final bool flipVertical;
 
   const _CropEditor({
     super.key,
@@ -278,6 +283,7 @@ class _CropEditor extends StatefulWidget {
     required this.scrollZoomSensitivity,
     this.overlayBuilder,
     required this.filterQuality,
+    this.flipVertical = false,
   });
 
   @override
@@ -632,12 +638,20 @@ class _CropEditorState extends State<_CropEditor> {
                         Positioned(
                           left: _readyState.imageRect.left,
                           top: _readyState.imageRect.top,
-                          child: Image.memory(
-                            widget.image,
-                            width: _readyState.imageRect.width,
-                            height: _readyState.imageRect.height,
-                            fit: BoxFit.contain,
-                            filterQuality: widget.filterQuality,
+                          child: Transform(
+                            alignment: Alignment.center,
+                            transform: Matrix4.identity()
+                              ..scale(
+                                1.0,
+                                widget.flipVertical ? -1.0 : 1.0,
+                              ),
+                            child: Image.memory(
+                              widget.image,
+                              width: _readyState.imageRect.width,
+                              height: _readyState.imageRect.height,
+                              fit: BoxFit.contain,
+                              filterQuality: widget.filterQuality,
+                            ),
                           ),
                         ),
                       ],
